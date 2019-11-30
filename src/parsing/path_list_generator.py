@@ -1,4 +1,3 @@
-# necessary packages
 import random
 import os
 
@@ -60,10 +59,14 @@ class PathListGenerator:
             trainPaths_img = imagePaths
             trainPaths_lbl = labelPaths
 
-            valPaths_img = list(paths.list_images(
-                                os.path.join(self.validation_path, "images")))
-            valPaths_lbl = list(paths.list_images(
-                                os.path.join(self.validation_path, "labels")))
+            valPaths_img = []
+            valPaths_lbl = []
+
+            for image in sorted(os.listdir(os.path.join(self.validation_path, "images"))):
+                valPaths_img.append(image)
+            
+            for label in sorted(os.listdir(os.path.join(self.validation_path, "labels"))):
+                valPaths_lbl.append(label)
 
         else: 
             trainPaths_img = imagePaths[self.val_size:]

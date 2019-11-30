@@ -1,11 +1,14 @@
-#packages
 import sys
 import numpy as np
 import json
 import progressbar
 import cv2
 import imutils
-# classes
+
+sys.path.append('../../..')
+
+import config
+
 from parsing.hdf5_parser.data_to_hdf5 import HDF5writer
 
 def createHDF5(output_path, img_path, label_path, img_dims, label_dims,
