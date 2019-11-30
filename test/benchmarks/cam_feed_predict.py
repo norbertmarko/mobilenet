@@ -1,9 +1,7 @@
 #encoding='utf-8'
 
 import sys
-sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
-
-sys.path.append('../..')
+#sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
 
 import conf
 
@@ -24,11 +22,7 @@ from utils.ringbuffer import RingBuffer
 
 
 # color map for segmentation
-colors = np.array([[128, 64,1],
-                   [255,143,3],
-                   [128,255,2],
-                   [0,140,255],
-                   [0,  0,  0]])
+colors = np.array(conf.colors)
 
 def preprocess(frame):
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -37,7 +31,7 @@ def preprocess(frame):
 
 def producer(storage):
     
-    cap = cv2.VideoCapture(-1)
+    cap = cv2.VideoCapture(0)
 
     while True:
         ret, frame = cap.read()
