@@ -1,42 +1,42 @@
 import os
 
 # Path to images
-img_dir = "./dataset/training/images"
+img_dir = "./src/dataset/training/images"
 # Path to labels
-label_dir = "./dataset/training/labels"
+label_dir = "./src/dataset/training/labels"
 # Option 1 - Path to validation data.
-validation_path = './dataset/validation'
+validation_path = './src/dataset/validation'
 
 # Option 2 - if validation_path is not valid
-#dataset_length = len(os.listdir(img_dir))
-dataset_length = 2975
+dataset_length = len(os.listdir(img_dir))
+#dataset_length = 2975
 validation_split = 0.1
 # Validation split ratio - only used if no validation_path exists.
-#val_size = int( dataset_length * validation_split )
-val_size = 500
+val_size = int( dataset_length * validation_split )
+#val_size = 500
 
 # TFRECORD
 # tfrecord data root dir
-record_path = "./records/"
+record_path = "./src/data/records/"
 # training data output path
-output_path_train = './records/train/training.tfrecord'
+output_path_train = './src/data/records/train/training.tfrecord'
 # validation data output path 
-output_path_val = './records/val/validation.tfrecord'
+output_path_val = './src/data/records/val/validation.tfrecord'
 
 # mean values json
-dataset_mean = 'h5files/mean_values.json'
+dataset_mean = 'src/data/h5files/mean_values.json'
 
 #HDF5
 # training data output path
-hdf5_path ='h5files/train_data.hdf5'
+hdf5_path ='src/data/h5files/train_data.hdf5'
 # validation data output path
-hdf5_val_path ='h5files/val_data.hdf5'
+hdf5_val_path ='src/data/h5files/val_data.hdf5'
 # Serialization
 bufferSize = None
 hdf5BatchSize=32
 
 # TensorBoard root logdir
-logdir = "./logs"
+logdir = "training/logs"
 
 # input
 width = 512
@@ -57,7 +57,7 @@ steps_per_epoch = int( dataset_length // batch_size )
 val_steps = int(val_size // val_batch_size)
 
 # model paths - rewrite h5 path with desired model to be optimized
-h5_model = os.path.join('training', 'saved_models', 'mobilenet-v1-skipnet.model')
+h5_model_dir = 'training/models'
 
 saved_model_dir = './export/savedmodel'
 saved_model_opt_dir = './export/opt_savedmodel'
@@ -71,7 +71,7 @@ freezed_trt = os.path.join(saved_model_trt_dir, "freezed_model_trt.pb")
 trt_opt_model = '/media/orion/6400F60300F5DC4C/nn_experiment/camera_test/mobilenet-master/optimization/export/trt_savedmodel/freezed_model_trt.pb'
 
 # checkpoint weights
-cps_dir = './cps/weights-improvement_stohastic_augment-{epoch:02d}-{val_acc:.2f}.hdf5'
+cps_dir = '/training/checkpoints/weights-improvement_stohastic_augment-{epoch:02d}-{val_acc:.2f}.hdf5'
 
 # color maps for number of classes and mask coloring
 
