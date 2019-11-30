@@ -59,16 +59,13 @@ val_steps = int(val_size // val_batch_size)
 # model paths - rewrite h5 path with desired model to be optimized
 h5_model_dir = 'training/models'
 
-saved_model_dir = './export/savedmodel'
-saved_model_opt_dir = './export/opt_savedmodel'
-saved_model_trt_dir = './export/trt_savedmodel'
+saved_model_dir = 'export/savedmodel'
+saved_model_opt_dir = 'export/opt_savedmodel'
+saved_model_trt_dir = 'export/trt_savedmodel'
 
 freezed_raw = os.path.join(saved_model_dir,'freezed_model_raw.pb')
 freezed_opt = os.path.join(saved_model_opt_dir,'freezed_model_opt.pb')
 freezed_trt = os.path.join(saved_model_trt_dir, "freezed_model_trt.pb")
-
-#TODO: take this out after done
-trt_opt_model = '/media/orion/6400F60300F5DC4C/nn_experiment/camera_test/mobilenet-master/optimization/export/trt_savedmodel/freezed_model_trt.pb'
 
 # checkpoint weights
 cps_dir = '/training/checkpoints/weights-improvement_stohastic_augment-{epoch:02d}-{val_acc:.2f}.hdf5'

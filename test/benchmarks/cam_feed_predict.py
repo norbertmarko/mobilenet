@@ -5,7 +5,7 @@ sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
 
 sys.path.append('../..')
 
-import config
+import conf
 
 import os
 import time
@@ -32,7 +32,7 @@ colors = np.array([[128, 64,1],
 
 def preprocess(frame):
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    return cv2.resize(frame_rgb, (512, 288))
+    return cv2.resize(frame_rgb, (conf.width, conf.height))
 
 
 def producer(storage):
@@ -54,7 +54,7 @@ def consumer(storage):
     model = tf.Graph()
 
     with model.as_default():
-        f = gfile.FastGFile(config.trt_opt_model, 'rb')
+        f = gfile.FastGFile(conf.trt_opt_model, 'rb')
     
         graph_def = tf.GraphDef()
         # Parses a serialized binary message into the current message.
@@ -81,7 +81,7 @@ def consumer(storage):
                 print('Rate: {} Hz'.format(100 / (round(round_finish-round_start, 2))))
                 rounds = 0
 
-        prediction = sess.run(softmax_tensor, {'input_1:0': storage.get().pop().reshape(-1, 288, 512, 3)})
+        prediction = sess.run(softmax_tensor, {'input_1:0': storage.get().pop().reshape(-1, conf.height, conf.width, 3)})
 
         mask = np.argmax(prediction, axis=3)
         colored_mask = np.uint8(np.squeeze(colors[mask], axis=0))
