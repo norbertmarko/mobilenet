@@ -8,13 +8,16 @@ import tensorflow as tf
 import os
 import numpy as np
 from datetime import datetime
+import argparse
 
 sys.path.append('..')
 import config
 
-argread = ''
+parser = argparse.ArgumentParser()
+parser.add_argument("n", "--name", required=True, help="Name of the optimized model.")
+args = parser.parse_args()
 
-h5_model = os.path.join('../src', config.h5_model_dir, argread)
+h5_model = os.path.join('../src', config.h5_model_dir, args.n)
 
 saved_model_dir = config.saved_model_dir
 saved_model_opt_dir = config.saved_model_opt_dir
