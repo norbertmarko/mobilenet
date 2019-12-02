@@ -22,7 +22,7 @@ from utils.ringbuffer import RingBuffer
 
 
 # color map for segmentation
-colors = np.array(conf.colors)
+colors = np.array(conf.colors_rgb)
 
 def preprocess(frame):
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -57,7 +57,7 @@ def consumer(storage):
 
     sess = tf.Session(graph=model)
 
-    softmax_tensor = sess.graph.get_tensor_by_name('conv2d_transpose_2/truediv:0')
+    softmax_tensor = sess.graph.get_tensor_by_name(conf.softmaxTensor)
 
     # variables for FPS logging
     log_fps = True
@@ -75,7 +75,7 @@ def consumer(storage):
                 print('Rate: {} Hz'.format(100 / (round(round_finish-round_start, 2))))
                 rounds = 0
 
-        prediction = sess.run(softmax_tensor, {'input_1:0': storage.get().pop().reshape(-1, conf.height, conf.width, 3)})
+        prediction = sess.run(softmax_tensor, {conf.inputTensor: storage.get().pop().reshape(-1, conf.height, conf.width, 3)})
 
         mask = np.argmax(prediction, axis=3)
         colored_mask = np.uint8(np.squeeze(colors[mask], axis=0))
@@ -91,7 +91,8 @@ def consumer(storage):
         rounds += 1
 
 if __name__ == '__main__':
-
+    
+    #TODO: Test out different buffer sizes.
     storage = RingBuffer(20)
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
