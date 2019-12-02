@@ -21,7 +21,7 @@ After the model is done, optimization will be done with TensorRT to achieve the 
 
 
 
-![Custom Encoder-Decoder](https://github.com/norbertmarko/mobilenet/blob/master/figures/encoder_decoder.png)
+![Custom Encoder-Decoder](https://github.com/norbertmarko/mobilenet/blob/master/docs/figures/encoder_decoder.png)
 
 
 The feature extractor will be a modified Inception architecture  ([MobileNet v1](#mobile1) and [MobileNet v2](#mobile2)). The main difference is that [Inception V3](#inception) uses standard convolution while MobileNet employs depthwise separable convolution. The decoder will follow the standard FCN-8 architecture([SkipNet](#fcn8)) 
