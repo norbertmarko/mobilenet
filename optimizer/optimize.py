@@ -1,7 +1,7 @@
 #encoding='utf-8'
 
 import sys
-sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
+#sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
 
 import tensorflow as tf
 
@@ -15,6 +15,10 @@ import config
 
 parser = argparse.ArgumentParser()
 parser.add_argument("n", "--name", required=True, help="Name of the optimized model.")
+
+TensorFlowOpt = True
+TensorRtOpt = True
+
 args = parser.parse_args()
 
 h5_model = os.path.join('../src', config.h5_model_dir, args.n)
@@ -27,16 +31,6 @@ freezed_raw = config.freezed_raw
 freezed_opt = config.freezed_opt
 freezed_trt = config.freezed_trt
 
-# load the .h5 / .model
-#model = tf.keras.models.load_model(h5_model)
-
-# export the SavedModel format
-#tf.keras.experimental.export_saved_model(model, saved_model_dir)
-
-
-# TENSORFLOW OPTIMIZATION
-
-# get initial information from the graph def
 
 def get_graph_def_from_saved_model(saved_model_dir):
     
@@ -94,10 +88,6 @@ def describe_graph(graph_def, show_nodes=False):
             print('Op:{} - Name: {}'.format(node.op, node.name))
 
 
-# display information
-#describe_graph(get_graph_def_from_saved_model(saved_model_dir))
-
-
 def get_size(model_dir):
     
     print(model_dir)
@@ -113,9 +103,6 @@ def get_size(model_dir):
     print("Model size: {} KB".format(round(pb_size/(1024.0),3)))
     print("Variables size: {} KB".format(round( variables_size/(1024.0),3)))
     print("Total Size: {} KB".format(round((pb_size + variables_size)/(1024.0),3)))
-
-# display size information
-#get_size(saved_model_dir)
 
 
 def freeze_graph(saved_model_dir, stage):
@@ -147,12 +134,6 @@ def freeze_graph(saved_model_dir, stage):
     )
     
     print("SavedModel graph freezed!")
-
-# freezing the saved model graph
-#freeze_graph(saved_model_dir, raw)
-
-# describe graph after freezing it
-#describe_graph(get_graph_def_from_file(freezed_raw))
 
 
 # GRAPH TRANSFORM TOOL
@@ -189,12 +170,6 @@ transforms = [
     'sort_by_execution_order'
 ]
 
-# optimization function
-#optimize_graph(saved_model_dir, 'freezed_model_raw.pb', transforms)
-
-# describe graph after optimization
-#describe_graph(get_graph_def_from_file(freezed_opt))
-
 
 def convert_graph_def_to_saved_model(graph_filepath):
 
@@ -220,60 +195,88 @@ def convert_graph_def_to_saved_model(graph_filepath):
 
         print("Optimized graph converted to SavedModel!")
 
-# convert frozen model back to SavedModel
-#convert_graph_def_to_saved_model(freezed_opt)
+if __name__=='__main__':
+
+    if TensorFlowOpt:
+        # load the .h5 / .model
+        model = tf.keras.models.load_model(h5_model)
+
+        # export the SavedModel format
+        tf.keras.experimental.export_saved_model(model, saved_model_dir)
 
 
-# TENSORRT OPTIMIZATION (savedModel variation)
+        # TENSORFLOW OPTIMIZATION
 
-import tensorflow.contrib.tensorrt as trt
-from tensorflow.python.platform import gfile
+        # get initial information from the graph def
+        # display information
+        describe_graph(get_graph_def_from_saved_model(saved_model_dir))
 
+        # display size information
+        get_size(saved_model_dir)
 
-# optimizer uses these lists
-output_node_names = ['conv2d_transpose_2/truediv']
-outputs =  ['conv2d_transpose_2/truediv:0']
+        # freezing the saved model graph
+        freeze_graph(saved_model_dir, raw)
 
-tf.reset_default_graph()
+        # describe graph after freezing it
+        describe_graph(get_graph_def_from_file(freezed_raw))
 
-graph = tf.Graph()
+        # optimization function
+        optimize_graph(saved_model_dir, 'freezed_model_raw.pb', transforms)
 
+        # describe graph after optimization
+        describe_graph(get_graph_def_from_file(freezed_opt))
 
-# optimization process
-'''
-with graph.as_default():
-    with tf.Session() as sess:
-        
-        trt_graph = trt.create_inference_graph(
-            input_graph_def=None,
-            outputs=outputs,
-            input_saved_model_dir=saved_model_opt_dir,
-            input_saved_model_tags=['serve'],
-            max_batch_size=20,
-            max_workspace_size_bytes=7000000000,
-            precision_mode='INT8')
+        # convert frozen model back to SavedModel
+        convert_graph_def_to_saved_model(freezed_opt)
 
-        for node in trt_graph.node:
-            if node.op=='Placeholder':
-                print("input {}".format(node))
+    if TensorRtOpt:
 
-        output_stuff = tf.import_graph_def(trt_graph, name="", return_elements=outputs)
+        # TENSORRT OPTIMIZATION (savedModel variation)
 
-        tf.saved_model.simple_save(sess, saved_model_trt_dir,
-            inputs={'input_image': graph.get_tensor_by_name('input_1:0')},
-            outputs={'result':graph.get_tensor_by_name('conv2d_transpose_2/truediv:0')}
-            )
-
-'''
+        import tensorflow.contrib.tensorrt as trt
+        from tensorflow.python.platform import gfile
 
 
-# after tensorrt opt is done, use these scripts to test file and predictions
+        # optimizer uses these lists
+        output_node_names = ['conv2d_transpose_2/truediv']
+        outputs =  ['conv2d_transpose_2/truediv:0']
 
-# describe graph after TensorRT optimization
-#describe_graph(get_graph_def_from_saved_model(saved_model_trt_dir))
+        tf.reset_default_graph()
 
-# freezing the optimized saved model graph
-freeze_graph(saved_model_trt_dir, "trt")
+        graph = tf.Graph()
+
+        # optimization process
+        with graph.as_default():
+            with tf.Session() as sess:
+                
+                trt_graph = trt.create_inference_graph(
+                    input_graph_def=None,
+                    outputs=outputs,
+                    input_saved_model_dir=saved_model_opt_dir,
+                    input_saved_model_tags=['serve'],
+                    max_batch_size=20,
+                    max_workspace_size_bytes=7000000000,
+                    precision_mode='INT8')
+
+                for node in trt_graph.node:
+                    if node.op=='Placeholder':
+                        print("input {}".format(node))
+
+                output_stuff = tf.import_graph_def(trt_graph, name="", return_elements=outputs)
+
+                tf.saved_model.simple_save(sess, saved_model_trt_dir,
+                    inputs={'input_image': graph.get_tensor_by_name('input_1:0')},
+                    outputs={'result':graph.get_tensor_by_name('conv2d_transpose_2/truediv:0')}
+                    )
+
+
+        # after tensorrt opt is done, use these scripts to test file and predictions
+
+        # describe graph after TensorRT optimization
+        describe_graph(get_graph_def_from_saved_model(saved_model_trt_dir))
+
+        # freezing the optimized saved model graph
+        freeze_graph(saved_model_trt_dir, "trt")
 
 
 
