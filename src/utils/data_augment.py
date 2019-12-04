@@ -13,7 +13,7 @@ import params
 #parameters
 # parameterize seed value
 
-ia.seed(21)
+ia.seed(params.seedValue)
 
 seq = [None]
 
@@ -33,7 +33,9 @@ def _augment_seg(img, seg):
     if seq[0] is None:
         load_aug()
 
-# deterministic augmentation
+if params.augType == 'sto':
+    
+    # stohastic augmentation
     aug_sto = seq[0]
 
     images = []
@@ -43,6 +45,22 @@ def _augment_seg(img, seg):
 
     seg_aug = SegmentationMapOnImage(seg , nb_classes=np.max(seg)+1 , shape=img.shape)
     segmap_aug = aug_sto.augment_segmentation_maps( seg_aug )
+    segmap_aug = segmap_aug.get_arr_int(background_class_id=3)
+
+    return image_aug, segmap_aug
+
+if params.augType == 'det':
+
+    # deterministic augmentation
+    aug_det = seq[0].to_deterministic()
+
+    images = []
+    labels = []
+
+    image_aug = aug_det.augment_image( img )
+
+    seg_aug = SegmentationMapOnImage(seg , nb_classes=np.max(seg)+1 , shape=img.shape)
+    segmap_aug = aug_det.augment_segmentation_maps( seg_aug )
     segmap_aug = segmap_aug.get_arr_int(background_class_id=3)
 
     return image_aug, segmap_aug

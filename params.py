@@ -41,7 +41,9 @@ finetuneOptimizer = Adam(lr=learning_rate_ft)
 finetuneStartLayer = 0 #44
 
 augmentation = True
-#TODO: param to set deterministic or stohastic augmentation
+augType = 'det' # sto / det
+
+seedValue = 21
 
 # list of augmentations
 
