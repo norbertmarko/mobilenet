@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+#encoding='utf-8'
+
+#import sys
+#sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
+
 import sys
 import rospy
 from sensor_msgs.msg import Image
@@ -10,7 +15,7 @@ from cv_bridge import CvBridge, CvBridgeError
 def webcam_pub():
     pub = rospy.Publisher('webcam/image_raw', Image, queue_size=1)
     rospy.init_node('webcam_pub', anonymous=True)
-    rate = rospy.Rate(1) # 60hz
+    rate = rospy.Rate(60) # 60hz
 
     cam = cv2.VideoCapture(-1)
     bridge = CvBridge()
