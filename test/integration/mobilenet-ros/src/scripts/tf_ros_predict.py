@@ -3,7 +3,6 @@
 #encoding='utf-8'
 import sys
 #sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
-import concurrent.futures # multithreading with ThreadPoolExecutor
 import cv2
 import numpy as np
 import time
@@ -13,14 +12,11 @@ from tensorflow.python.platform import gfile
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-import matplotlib.pyplot as plt
+
+import conf
 
 # color map for segmentation
-colors = np.array([[128, 64,1],
-                   [255,143,3],
-                   [128,255,2],
-                   [0,140,255],
-                   [0,  0,  0]])
+colors = np.array(conf.colors_rgb)
 
 model_path = '/media/orion/6400F60300F5DC4C/nn_experiment/camera_test/mobilenet-master/optimization/export/trt_savedmodel/freezed_model_trt.pb'
 inputTensor = 'input_1:0'
@@ -29,7 +25,7 @@ softmaxTensor = 'conv2d_transpose_2/truediv:0'
 def init_tfmodel():
     trained_model = tf.Graph()
     with trained_model.as_default():
-        f = gfile.FastGFile(model_path,'rb')
+        f = gfile.FastGFile(conf.trt_opt_model,'rb')
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
         tf.import_graph_def(graph_def, name="")
@@ -42,25 +38,30 @@ class TFROS():
         self._session = tf.Session(graph=trained_model)
         self._cv_bridge = CvBridge()
         
-        self._sub = rospy.Subscriber('webcam/image_raw', Image, 
+        self._sub = rospy.Subscriber(conf.topic, Image, 
                                        self.callback, queue_size=1)
 
     def preprocess(self, frame):
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        return cv2.resize(frame_rgb, (512, 288))
+        return cv2.resize(frame_rgb, (conf.width, conf.height))
 
     def callback(self, msg):
         decodedFrame = self._cv_bridge.imgmsg_to_cv2(msg, "bgr8")
         decodedFrame = self.preprocess(decodedFrame)
 
-        softmax_tensor = self._session.graph.get_tensor_by_name(softmaxTensor)
+        softmax_tensor = self._session.graph.get_tensor_by_name(conf.softmaxTensor)
         prediction = self._session.run(
-            softmax_tensor, {inputTensor: decodedFrame.reshape(-1, 288, 512, 3)})
+            softmax_tensor, {conf.inputTensor: decodedFrame.reshape(-1, conf.height, conf.width, 3)})
         
         mask = np.argmax(prediction, axis=3)
         colored_mask = np.uint8(np.squeeze(colors[mask], axis=0))
-
-        cv2.imshow('CameraFeed', colored_mask)
+        
+        # Publish as ROS topic
+        seg_msg = self._cv_bridge.cv2_to_imgmsg(colored_mask, encoding="bgr8")
+        pub = rospy.Publisher('tfros_seg', Image, queue_size=1)
+        pub.publish(seg_msg)
+   
+        cv2.imshow('Prediction', colored_mask)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
