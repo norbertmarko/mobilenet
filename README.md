@@ -7,6 +7,7 @@ The purpose of the project is to create a model capable of real-time semantic se
 + [The Goal](#the-goal)
 + [Tools](#tools)
 + [Planned Task List](#planned-task-list)
++ [ROS integration](#ros-integration)
 + [Acknowledgements](#acknowledgements)
 
 ## The Goal
@@ -48,6 +49,57 @@ For training and fine-tuning the models, 3 GeForce RTX 2080 GPUs are used simult
 - [ ] Add video inference results
 
 ```
+
+## ROS integration
+
+Running the network wrapped into ROS (Robotic Operating System) on Ubuntu:
+
+1. Copy the "mobilenet-ros" package from /test/integration into your workspace's 'src' folder. ([Creating a workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace))
+
+```
+$ cd ~/catkin_ws/src
+```
+2. Go back to your root workspace folder to build the package then source it.
+
+```
+$ cd ../
+$ catkin_make
+$ source ./devel/setup.bash
+```
+3. Download the trained model ([Model on Google Drive]()), and place it into the 'mobilenet-ros/src/model' directory. Specify the absolute path in 'mobilenet-ros/src/scripts/conf.py' by changing the
+'trt_opt_model' variable to the new path. Use the commands below to find out the absolute path on your machine. Put the model name you placed in the model directory after 'realpath' command.
+
+```
+$ cd ~/catkin_ws/src/mobilenet-ros/src/model
+$ realpath freezed_model_trt.pb
+```
+4. You will need several terminal windows for this stage (Terminator recommended). Start ROS core in one, open two more terminals, navigate to your workspace root and source in both of them the way you did in step 2.
+Go to 'src/mobilenet-ros/src/scripts' in one of the workspace root windows and make the 'camera_node.py' and 'tf_ros_predict.py' scripts exacutable. Navigate back to workspace root when you are done.
+
+```
+# Terminal 1
+$ roscore
+
+# Terminal 2
+$ cd ~/catkin_ws/
+$ source ./devel/setup.bash
+
+# Terminal 3
+$ cd ~/catkin_ws/
+$ source ./devel/setup.bash
+$ cd ./src/mobilenet-ros/src/scripts
+$ chmod +x camera_node.py
+$ chmod +x tf_ros_predict.py
+$ cd ../../../..
+```
+5. Use your two workspace root terminal windows to run the camera node in one and the segmentation subscriber in the other. Make sure you have a webcam plugged in. If you use a camera that is capable of publishing
+it's image frames as a ROS topic, then change the topic name in the conf.py file and run the camera first.
+
+```
+$ rosrun mobilenet-ros camera_node.py
+$ rosrun mobilenet-ros tf_ros_predict.py
+```
+
 
 ## Acknowledgements
 

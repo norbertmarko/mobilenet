@@ -1,6 +1,7 @@
 import os
 
-trt_opt_model = '/media/orion/6400F60300F5DC4C/nn_experiment/camera_test/mobilenet-master/optimization/export/trt_savedmodel/freezed_model_trt.pb'
+os.chdir('..')
+trt_opt_model = '/home/orion/catkin_ws/src/mobilenet-ros/src/model/freezed_model_trt.pb'
 
 height = 288 
 width = 512
