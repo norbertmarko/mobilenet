@@ -55,11 +55,12 @@ For training and fine-tuning the models, 3 GeForce RTX 2080 GPUs are used simult
 Running the network wrapped into ROS (Robotic Operating System) on Ubuntu:
 
 1. Copy the "mobilenet-ros" package from /test/integration into your workspace's 'src' folder. ([Creating a workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace))
+From now on, if the documentation refers to mobilenet-ros, it means the package in your workspace not the original in the repository.
 
 ```
 $ cd ~/catkin_ws/src
 ```
-2. Go back to your root workspace folder to build the package then source it.
+2. Go back to your root workspace folder to build the package then build it and source it.
 
 ```
 $ cd ../
