@@ -14,7 +14,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from conf import height as h
 from conf import width as w
 
-class TransformPrediction():
+class TransformPrediction:
 
     def __init__(self):
         self._cv_bridge = CvBridge()

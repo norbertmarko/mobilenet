@@ -15,12 +15,9 @@ from cv_bridge import CvBridge, CvBridgeError
 
 import conf
 
+
 # color map for segmentation
 colors = np.array(conf.colors_rgb)
-
-model_path = '/media/orion/6400F60300F5DC4C/nn_experiment/camera_test/mobilenet-master/optimization/export/trt_savedmodel/freezed_model_trt.pb'
-inputTensor = 'input_1:0'
-softmaxTensor = 'conv2d_transpose_2/truediv:0'
 
 def init_tfmodel():
     trained_model = tf.Graph()
@@ -32,7 +29,7 @@ def init_tfmodel():
     
     return trained_model
 
-class TFROS():
+class TFROS:
     def __init__(self):
         trained_model = init_tfmodel()
         self._session = tf.Session(graph=trained_model)
