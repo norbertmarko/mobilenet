@@ -12,8 +12,16 @@ from cv_bridge import CvBridge, CvBridgeError
 
 class TRPRED():
     def __init__(self):
-        pass
+        self._cv_bridge = CvBridge()
+        self._sub = rospy.Subscriber('tfros_seg', Image,
+                                        self.callback, queue_size=1)
     
+    def callback(self, msg):
+        decodedFrame = self._cv_bridge.imgmsg_to_cv2(msg, 'brg8')
+        
+
+        mrk_arr_msg = "" # should publish a marker array rosmsg
+
     def main(self):
         rospy.spin()
 
