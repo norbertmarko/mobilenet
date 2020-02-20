@@ -24,4 +24,4 @@ class CalibrateCamera:
 
         pattern = np.zeros((pattern_size[1] * pattern_size[0], 3), np.float32)
 
-    
+        (var1, var2) = cv2.findChessboardCorners(image, (9, 6), None)
